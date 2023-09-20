@@ -12,6 +12,7 @@ from logger import get_logger, log_error
 from Regressor import load_predictor_model, predict_with_model
 from schema.data_schema import load_saved_schema
 from utils import read_json_as_dict
+from preprocessing.pipeline import run_pipeline
 
 logger = get_logger(task_name="serve")
 
@@ -92,6 +93,8 @@ async def transform_req_data_and_make_predictions(
     validate_data(data=data, data_schema=model_resources.data_schema, is_train=False)
     ids = data[model_resources.data_schema.id]
     data.drop(columns=model_resources.data_schema.id, inplace=True)
+    data = run_pipeline(data, model_resources.data_schema, training=False)
+
     logger.info("Making predictions...")
     predictions_df = predict_with_model(
         model_resources.predictor_model,
