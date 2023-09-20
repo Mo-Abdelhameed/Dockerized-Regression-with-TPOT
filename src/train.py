@@ -41,6 +41,10 @@ def run_training(
         x_train = x_train.drop(columns=[data_schema.id, data_schema.target])
 
         logger.info("Preprocessing training data...")
+
+        for column in data_schema.categorical_features:
+            x_train[column] = x_train[column].astype(str)
+
         x_train = run_pipeline(x_train, data_schema, training=True)
         x_train[data_schema.target] = target
         logger.info("Training regressor...")

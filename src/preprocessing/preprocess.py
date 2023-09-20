@@ -100,7 +100,6 @@ def encode(
     Returns:
         A dataframe after performing one-hot encoding
     """
-    print(input_data)
     cat_features = schema.categorical_features
     if not cat_features:
         return input_data
