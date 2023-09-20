@@ -2,11 +2,13 @@ import os
 import re
 import warnings
 from typing import List
+
 import numpy as np
 import pandas as pd
-from tpot import TPOTRegressor
 from joblib import dump, load
 from sklearn.exceptions import NotFittedError
+from tpot import TPOTRegressor
+
 from schema.data_schema import RegressionSchema
 
 warnings.filterwarnings("ignore")

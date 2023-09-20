@@ -1,6 +1,6 @@
 import pandas as pd
 from joblib import dump, load
-from schema.data_schema import RegressionSchema
+
 from config import paths
 from preprocessing.preprocess import (
     encode,
@@ -8,12 +8,14 @@ from preprocessing.preprocess import (
     impute_numeric,
     normalize,
 )
+from schema.data_schema import RegressionSchema
 
 
 def run_pipeline(
     input_data: pd.DataFrame,
     schema: RegressionSchema,
     training: bool = True,
+    imputation_path: str = paths.IMPUTATION_FILE_PATH
 ) -> pd.DataFrame:
     """
     Apply transformations to the input data (Imputations, encoding and normalization).
@@ -22,6 +24,7 @@ def run_pipeline(
         input_data (pd.DataFrame): Data to be processed.
         schema (RegressionSchema): RegressionSchema object carrying data about the schema
         training (bool): Should be set to true if the data is for the training process.
+        imputation_path (str): Path to the file containing values used for imputation.
     Returns:
         pd.DataFrame: The data after applying the transformations
     """
@@ -38,9 +41,10 @@ def run_pipeline(
         input_data = normalize(input_data, schema)
 
         input_data = encode(input_data, schema)
-        dump(imputation_dict, paths.IMPUTATION_FILE_PATH)
+        dump(imputation_dict, imputation_path)
     else:
-        imputation_dict = load(paths.IMPUTATION_FILE_PATH)
+        imputation_dict = load(imputation_path)
+
         for f in schema.features:
             input_data[f].fillna(
                 imputation_dict.get(f, input_data[f].mode()[0]), inplace=True

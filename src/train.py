@@ -1,8 +1,8 @@
 import os
 
-from preprocessing.pipeline import run_pipeline
 from config import paths
 from logger import get_logger, log_error
+from preprocessing.pipeline import run_pipeline
 from Regressor import Regressor
 from schema.data_schema import load_json_data_schema, save_schema
 from utils import read_csv_in_directory, set_seeds
@@ -37,11 +37,12 @@ def run_training(
 
         logger.info("Loading training data...")
         x_train = read_csv_in_directory(train_dir)
-        x_train = x_train.drop(columns=data_schema.id)
+        target = x_train[data_schema.target]
+        x_train = x_train.drop(columns=[data_schema.id, data_schema.target])
 
         logger.info("Preprocessing training data...")
         x_train = run_pipeline(x_train, data_schema, training=True)
-
+        x_train[data_schema.target] = target
         logger.info("Training regressor...")
         regressor = Regressor(x_train, data_schema)
         regressor.train()

@@ -5,6 +5,7 @@ import pandas as pd
 from feature_engine.encoding import OneHotEncoder
 from joblib import dump, load
 from sklearn.preprocessing import StandardScaler
+
 from config import paths
 from logger import get_logger
 from schema.data_schema import RegressionSchema
