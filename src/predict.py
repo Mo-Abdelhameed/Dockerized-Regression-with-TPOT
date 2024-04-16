@@ -47,6 +47,7 @@ def run_batch_predictions(
     logger.info("Saving predictions...")
     save_dataframe_as_csv(dataframe=predictions_df, file_path=predictions_file_path)
     logger.info("Batch predictions completed successfully")
+    logger.info("Used piepline: {}".format(model))
 
 
 if __name__ == "__main__":
