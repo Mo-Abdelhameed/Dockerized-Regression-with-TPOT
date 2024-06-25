@@ -5,7 +5,7 @@ from logger import get_logger, log_error
 from preprocessing.pipeline import run_pipeline
 from Regressor import Regressor
 from schema.data_schema import load_json_data_schema, save_schema
-from utils import read_csv_in_directory, set_seeds
+from utils import read_csv_in_directory, set_seeds, ResourceTracker
 
 logger = get_logger(task_name="train")
 
@@ -28,28 +28,29 @@ def run_training(
         None
     """
     try:
-        logger.info("Starting training...")
-        set_seeds(seed_value=123)
+        with ResourceTracker(logger, monitoring_interval=0.1):
+            logger.info("Starting training...")
+            set_seeds(seed_value=123)
 
-        logger.info("Loading and saving schema...")
-        data_schema = load_json_data_schema(input_schema_dir)
-        save_schema(schema=data_schema, save_dir_path=saved_schema_dir_path)
+            logger.info("Loading and saving schema...")
+            data_schema = load_json_data_schema(input_schema_dir)
+            save_schema(schema=data_schema, save_dir_path=saved_schema_dir_path)
 
-        logger.info("Loading training data...")
-        x_train = read_csv_in_directory(train_dir)
-        target = x_train[data_schema.target]
-        x_train = x_train.drop(columns=[data_schema.id, data_schema.target])
+            logger.info("Loading training data...")
+            x_train = read_csv_in_directory(train_dir)
+            target = x_train[data_schema.target]
+            x_train = x_train.drop(columns=[data_schema.id, data_schema.target])
 
-        logger.info("Preprocessing training data...")
+            logger.info("Preprocessing training data...")
 
-        for column in data_schema.categorical_features:
-            x_train[column] = x_train[column].astype(str)
+            for column in data_schema.categorical_features:
+                x_train[column] = x_train[column].astype(str)
 
-        x_train = run_pipeline(x_train, data_schema, training=True)
-        x_train[data_schema.target] = target
-        logger.info("Training regressor...")
-        regressor = Regressor(x_train, data_schema)
-        regressor.train()
+            x_train = run_pipeline(x_train, data_schema, training=True)
+            x_train[data_schema.target] = target
+            logger.info("Training regressor...")
+            regressor = Regressor(x_train, data_schema)
+            regressor.train()
         if not os.path.exists(predictor_dir_path):
             os.makedirs(predictor_dir_path)
         regressor.save(predictor_dir_path)
